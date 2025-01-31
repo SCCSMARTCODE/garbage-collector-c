@@ -33,21 +33,8 @@ This repository implements a garbage collector for C programs, focusing on strat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/garbage-collector-c.git
-   cd garbage-collector-c
+   git clone https://github.com/SCCSMARTCODE/garbage-collector-c.git
    ```
-
-2. Build the project using `make`:
-   ```bash
-   make
-   ```
-
-3. Run the tests:
-   ```bash
-   ./tests
-   ```
-
----
 
 ## 🚀 Usage
 
