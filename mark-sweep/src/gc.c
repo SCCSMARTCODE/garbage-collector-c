@@ -4,29 +4,27 @@
 GcObject *head = NULL;
 GcObject *tail = NULL;
 pthread_mutex_t gc_mutex = PTHREAD_MUTEX_INITIALIZER;
-int thePointerToTrackBeginningStackMemoryAddress;
 
 
-void* get_stack_base() {  
-    pthread_attr_t attr;  
-    void* stackaddr;  
-    size_t stacksize;  
-
-    pthread_attr_init(&attr);  
-    pthread_getattr_np(pthread_self(), &attr);  
-    pthread_attr_getstack(&attr, &stackaddr, &stacksize);  
-    pthread_attr_destroy(&attr);  
+void* get_stack_base() {
+    void* stack_base = NULL;
     
-    return stackaddr; // Return the stack base address  
-}  
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_getattr_np(pthread_self(), &attr);
+    size_t stack_size;
+    pthread_attr_getstack(&attr, &stack_base, &stack_size);
+    pthread_attr_destroy(&attr);
+
+    return (void*)((char*)stack_base + stack_size); // Ensure this is correct!
+}
+
 
 void find_object_by_address(void *ptr) {
     
     GcObject* current_obj = head;
     while (current_obj) {
-        printf("here!y\n");
         if (ptr == current_obj->memory) {
-            printf("here!x\n");
             current_obj->isMarked = true;
             return;
         }
@@ -83,17 +81,17 @@ void* gc_malloc(size_t memory_size) {
 
 void gc_collect(){
     printf("\n[GC] Running garbage collection...\n");
+    int thePointerToTrackBeginningStackMemoryAddress;
+
     
     void* addressToStackBeginningPtr = &thePointerToTrackBeginningStackMemoryAddress;
-    printf("Allocated [ %p ] for stack top address\n", addressToStackBeginningPtr);
     void* addressToStackEndPtr = get_stack_base();
+   
     // Marking process
-    for (void **ptr = (void **)addressToStackBeginningPtr; ptr < (void **)addressToStackEndPtr; ptr++) {
-        if (!ptr) continue;
-        printf("checking [ %p ] if it's a reference\n", ptr);
+   for (void **ptr = (void **)addressToStackBeginningPtr; ptr > (void **)addressToStackEndPtr; ptr--) {
+        if (ptr == NULL || *ptr == NULL) continue; // Skip invalid pointers
         find_object_by_address(*ptr);
     }
-    printf("here!\n");
 
     // Sweeping process
     sweep_memory();

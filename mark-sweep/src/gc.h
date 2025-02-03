@@ -19,7 +19,6 @@ typedef struct GcObject{
 }GcObject;
 
 
-// void* thePointerToTrackBeginningStackMemoryAddress = NULL;
 
 void* get_stack_base();
 void *gc_malloc(size_t size);
